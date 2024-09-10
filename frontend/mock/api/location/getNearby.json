@@ -1,0 +1,255 @@
+[
+    {
+        "facility_id": 1,
+        "facility_name": "臺北市松山區健康服務中心",
+        "address": "臺北市松山區八德路4段692號2樓",
+        "phone_number": "(02)27671757",
+        "extension": "6053",
+        "space_type": "nursing_room",
+        "space_size": "small",
+        "access_method": "registration_required",
+        "gender_friendly": true,
+        "located_in_male_wc": false,
+        "located_in_female_wc": true,
+        "amenities": [
+            {
+                "amenity_name": "靠背椅",
+                "is_available": true
+            },
+            {
+                "amenity_name": "有蓋垃圾桶",
+                "is_available": true
+            },
+            {
+                "amenity_name": "電源設備",
+                "is_available": true
+            },
+            {
+                "amenity_name": "可由內部上鎖之門",
+                "is_available": true
+            },
+            {
+                "amenity_name": "緊急求救設備",
+                "is_available": true
+            },
+            {
+                "amenity_name": "洗手設施",
+                "is_available": true
+            },
+            {
+                "amenity_name": "飲水服務",
+                "is_available": true
+            },
+            {
+                "amenity_name": "尿布台",
+                "is_available": true
+            },
+            {
+                "amenity_name": "母乳專用冰箱",
+                "is_available": true
+            },
+            {
+                "amenity_name": "消毒器具",
+                "is_available": true
+            },
+            {
+                "amenity_name": "置物空間",
+                "is_available": true
+            },
+            {
+                "amenity_name": "嬰兒車停放空間",
+                "is_available": true
+            }
+        ],
+        "latitude": 25.0485,
+        "longitude": 121.5769,
+        "operating_hours": "週一至週五08:30~17:30",
+        "friendly_features": {
+            "wheelchair_accessible": true,
+            "certification_expiry": "115年8月31日"
+        },
+        "notes": "自行前往哺集乳室，並登記；哺集乳室資訊依各場所實際公告內容為主"
+    },
+    {
+        "facility_id": 2,
+        "facility_name": "內政部國土管理署",
+        "address": "臺北市松山區八德路2段342號1樓",
+        "phone_number": "(02)87712534",
+        "extension": null,
+        "space_type": "nursing_room",
+        "space_size": "small",
+        "access_method": "registration_required",
+        "gender_friendly": false,
+        "located_in_male_wc": false,
+        "located_in_female_wc": true,
+        "amenities": [
+            {
+                "amenity_name": "靠背椅",
+                "is_available": true
+            },
+            {
+                "amenity_name": "有蓋垃圾桶",
+                "is_available": true
+            },
+            {
+                "amenity_name": "電源設備",
+                "is_available": true
+            },
+            {
+                "amenity_name": "可由內部上鎖之門",
+                "is_available": true
+            },
+            {
+                "amenity_name": "緊急求救設備",
+                "is_available": true
+            },
+            {
+                "amenity_name": "洗手設施",
+                "is_available": true
+            },
+            {
+                "amenity_name": "飲水服務",
+                "is_available": true
+            },
+            {
+                "amenity_name": "尿布台",
+                "is_available": true
+            },
+            {
+                "amenity_name": "母乳專用冰箱",
+                "is_available": true
+            },
+            {
+                "amenity_name": "免費衛生用品",
+                "is_available": true
+            },
+            {
+                "amenity_name": "置物空間",
+                "is_available": true
+            }
+        ],
+        "latitude": 25.0456,
+        "longitude": 121.5639,
+        "operating_hours": "週一至週五08:00~17:00",
+        "notes": "使用者請於開放時間向本署秘書室事務課洽借鑰匙，並填寫哺(集)乳室鑰匙借用登記表、使用登記統計表；哺集乳室資訊依各場所實際公告內容為主"
+    },
+    {
+        "facility_id": 3,
+        "facility_name": "交通部運輸研究所",
+        "address": "臺北市松山區敦化北路240號",
+        "phone_number": "(02)23496734",
+        "extension": "6733",
+        "space_type": "nursing_room",
+        "space_size": "small",
+        "access_method": "open_access",
+        "gender_friendly": true,
+        "located_in_male_wc": false,
+        "located_in_female_wc": true,
+        "amenities": [
+          {
+            "amenity_name": "靠背椅",
+            "is_available": true
+          },
+          {
+            "amenity_name": "有蓋垃圾桶",
+            "is_available": true
+          },
+          {
+            "amenity_name": "電源設備",
+            "is_available": true
+          },
+          {
+            "amenity_name": "可由內部上鎖之門",
+            "is_available": true
+          },
+          {
+            "amenity_name": "緊急求救設備",
+            "is_available": true
+          },
+          {
+            "amenity_name": "洗手設施",
+            "is_available": true
+          },
+          {
+            "amenity_name": "飲水服務",
+            "is_available": true
+          },
+          {
+            "amenity_name": "母乳專用冰箱",
+            "is_available": true
+          },
+          {
+            "amenity_name": "置物空間",
+            "is_available": true
+          },
+          {
+            "amenity_name": "嬰兒車停放空間",
+            "is_available": true
+          }
+        ],
+        "latitude": 25.0498,
+        "longitude": 121.5625,
+        "operating_hours": "週一至週五08:30~17:30",
+        "notes": "哺集乳室資訊依各場所實際公告內容為主"
+      },
+      {
+        "facility_id": 4,
+        "facility_name": "交通部公路局臺北市區監理所",
+        "address": "臺北市松山區八德路4段21號",
+        "phone_number": "(02)27630155",
+        "extension": null,
+        "space_type": "nursing_room",
+        "space_size": "small",
+        "access_method": "open_access",
+        "gender_friendly": true,
+        "located_in_male_wc": false,
+        "located_in_female_wc": true,
+        "amenities": [
+          {
+            "amenity_name": "靠背椅",
+            "is_available": true
+          },
+          {
+            "amenity_name": "有蓋垃圾桶",
+            "is_available": true
+          },
+          {
+            "amenity_name": "電源設備",
+            "is_available": true
+          },
+          {
+            "amenity_name": "可由內部上鎖之門",
+            "is_available": true
+          },
+          {
+            "amenity_name": "緊急求救設備",
+            "is_available": true
+          },
+          {
+            "amenity_name": "洗手設施",
+            "is_available": true
+          },
+          {
+            "amenity_name": "尿布台",
+            "is_available": true
+          },
+          {
+            "amenity_name": "母乳專用冰箱",
+            "is_available": true
+          },
+          {
+            "amenity_name": "置物空間",
+            "is_available": true
+          },
+          {
+            "amenity_name": "嬰兒車停放空間",
+            "is_available": true
+          }
+        ],
+        "latitude": 25.0462,
+        "longitude": 121.5653,
+        "operating_hours": "週一至週五08:30~18:00",
+        "certification_expiry": "115年8月31日",
+        "notes": "自行前往哺集乳室；哺集乳室資訊依各場所實際公告內容為主"
+      }
+]
