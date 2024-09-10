@@ -1,29 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Dimensions, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Dimensions, TouchableOpacity, Text } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import { SearchBar, Icon } from 'react-native-elements';
 import * as Location from 'expo-location';
+import nearbyFacilities from '../mock/api/location/getNearby.json';
+import useIcons from '../hooks/useIcons';
 
 const App = () => {
   const [region, setRegion] = useState<Region | null>(null);
   const [search, setSearch] = useState('');
-
-  // 地標的測試資料
-  const markers = [
-    {
-      id: 1,
-      title: '竹中火車站',
-      coordinates: { latitude: 24.781322377021244, longitude: 121.0312899066833 },
-    },
-    {
-      id: 2,
-      title: '金山街',
-      coordinates: {
-        latitude: 24.776607710239443,
-        longitude: 121.02453073996587,
-      },
-    },
-  ];
+  const [facilities, setFacilities] = useState([]);
 
   const handleLocationPress = () => {
     getLocation();
@@ -49,26 +35,50 @@ const App = () => {
   // 取得目前使用者的位置，並設定預設的地圖位置
   useEffect(() => {
     getLocation();
+    const processedFacilities = nearbyFacilities.map((facility) => {
+      const IconComponent = useIcons(facility.space_type);
+      return { ...facility, IconComponent };
+    });
+    setFacilities(processedFacilities);
   }, []);
+
+  const getMarkerStyle = (spaceType) => {
+    switch (spaceType) {
+      case 'nursing_room':
+        return styles.nursingRoomMarker;
+      case 'family_restroom':
+        return styles.familyRestroomMarker;
+      case 'accessible_restroom':
+        return styles.accessibleRestroomMarker;
+      default:
+        return styles.defaultMarker;
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {region && (
-        <MapView
-          style={styles.map}
-          region={region}
-          showsUserLocation
-          showsMyLocationButton={false}
-        >
-          {markers.map((marker) => (
-            <Marker
-              key={marker.id}
-              coordinate={marker.coordinates}
-              title={marker.title}
-            />
-          ))}
-        </MapView>
-      )}
+      <MapView
+        style={styles.map}
+        region={region}
+        showsUserLocation
+        showsMyLocationButton={false}
+      >
+        {facilities.map((facility) => (
+          <Marker
+            key={facility.facility_id}
+            coordinate={{ latitude: facility.latitude, longitude: facility.longitude }}
+            title={facility.facility_name}
+            description={facility.address}
+            tracksViewChanges={false}
+          >
+            {facility.IconComponent && (
+              <View style={getMarkerStyle(facility.space_type)}>
+                <facility.IconComponent width={35} height={35} />
+              </View>
+            )}
+          </Marker>
+        ))}
+      </MapView>
 
       {/* 搜尋按鈕 */}
       <SearchBar
@@ -129,6 +139,50 @@ const styles = StyleSheet.create({
     color: '#3E4958',
     fontSize: 30,
   },
+  nursingRoomMarker: {
+    backgroundColor: '#d63384',
+    borderRadius: 25,
+    padding: 10,
+    borderWidth: 2,
+    borderColor: '#f7d6e6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 50,
+    height: 50
+  },
+  familyRestroomMarker: {
+    backgroundColor: '#fd7e14',
+    borderRadius: 25,
+    padding: 10,
+    borderWidth: 2,
+    borderColor: '#ffe5d0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 50,
+    height: 50,
+  },
+  accessibleRestroomMarker: {
+    backgroundColor: '#0d6efd',
+    borderRadius: 25,
+    padding: 10,
+    borderWidth: 2,
+    borderColor: '#cfe2ff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 50,
+    height: 50,
+  },
+  defaultMarker: {
+    backgroundColor: '#adb5bd',
+    borderRadius: 25,
+    padding: 10,
+    borderWidth: 2,
+    borderColor: '#f8f9fa',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 50,
+    height: 50,
+  }
 });
 
 export default App;
