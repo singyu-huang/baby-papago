@@ -6,7 +6,7 @@ interface IconMap {
   [key: string]: React.ComponentType<any> | null;
 }
 
-const useIcons = (spaceType: string) => {
+const useIcons = (spaceType: string): React.ComponentType<any> | null => {
   const iconMap: IconMap = {
     nursing_room: NursingRoomIcon,
     family_restroom: FamilyRestroomIcon,

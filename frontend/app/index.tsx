@@ -7,9 +7,21 @@ import nearbyFacilities from '../mock/api/location/getNearby.json';
 import useIcons from '../hooks/useIcons';
 
 const App = () => {
+  interface Facility {
+    facility_id: number;
+    facility_name: string;
+    address: string;
+    space_type: string;
+    latitude: number;
+    longitude: number;
+    IconComponent?: React.ComponentType<any> | null;
+  }
+
   const [region, setRegion] = useState<Region | null>(null);
   const [search, setSearch] = useState('');
-  const [facilities, setFacilities] = useState([]);
+  const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [isAdvancedVisible, setIsAdvancedVisible] = useState(false);
+
 
   const handleLocationPress = () => {
     getLocation();
@@ -35,14 +47,20 @@ const App = () => {
   // 取得目前使用者的位置，並設定預設的地圖位置
   useEffect(() => {
     getLocation();
-    const processedFacilities = nearbyFacilities.map((facility) => {
-      const IconComponent = useIcons(facility.space_type);
-      return { ...facility, IconComponent };
+
+    const processedFacilities: Facility[] = nearbyFacilities.map((facility) => {
+      const IconComponent = useIcons(facility.space_type || 'default');
+
+      return {
+        ...facility,
+        IconComponent,
+      };
     });
+
     setFacilities(processedFacilities);
   }, []);
 
-  const getMarkerStyle = (spaceType) => {
+  const getMarkerStyle = (spaceType: string) => {
     switch (spaceType) {
       case 'nursing_room':
         return styles.nursingRoomMarker;
@@ -55,42 +73,80 @@ const App = () => {
     }
   };
 
+  const toggleAdvancedSearch = () => {
+    setIsAdvancedVisible(!isAdvancedVisible);
+  };
+
   return (
     <View style={styles.container}>
-      <MapView
-        style={styles.map}
-        region={region}
-        provider={PROVIDER_GOOGLE}
-        showsUserLocation
-        showsMyLocationButton={false}
-      >
-        {facilities.map((facility) => (
-          <Marker
-            key={facility.facility_id}
-            coordinate={{ latitude: facility.latitude, longitude: facility.longitude }}
-            title={facility.facility_name}
-            description={facility.address}
-            tracksViewChanges={false}
-          >
-            {facility.IconComponent && (
-              <View style={getMarkerStyle(facility.space_type)}>
-                <facility.IconComponent width={35} height={35} />
-              </View>
-            )}
-          </Marker>
-        ))}
-      </MapView>
+      {region && (
+        <MapView
+          style={styles.map}
+          region={region}
+          provider={PROVIDER_GOOGLE}
+          showsUserLocation
+          showsMyLocationButton={false}
+        >
+          {facilities.map((facility) => (
+            <Marker
+              key={facility.facility_id}
+              coordinate={{ latitude: facility.latitude, longitude: facility.longitude }}
+              title={facility.facility_name}
+              description={facility.address}
+              tracksViewChanges={false}
+            >
+              {facility.IconComponent && (
+                <View style={getMarkerStyle(facility.space_type)}>
+                  <facility.IconComponent width={35} height={35} />
+                </View>
+              )}
+            </Marker>
+          ))}
+        </MapView>
+      )}
 
       {/* 搜尋按鈕 */}
       <SearchBar
-        placeholder="搜尋..."
+        placeholder="輸入地點"
         // @ts-ignore
         onChangeText={(value) => setSearch(value)}
         value={search}
         containerStyle={styles.searchBarContainer}
         inputContainerStyle={styles.searchBarInputContainer}
         inputStyle={styles.searchBarInput}
+        onFocus={toggleAdvancedSearch}
       />
+
+      {isAdvancedVisible && (
+        <View style={styles.advancedSearchContainer}>
+          <Text style={styles.sectionTitle}>常用空間</Text>
+          <View style={styles.optionRow}>
+            <TouchableOpacity style={styles.optionButton}>
+              <Text style={styles.optionText}>哺乳室</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.optionButton}>
+              <Text style={styles.optionText}>親子廁所</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.sectionTitle}>進入方式</Text>
+          <View style={styles.optionRow}>
+            <TouchableOpacity style={styles.optionButton}>
+              <Text style={styles.optionText}>自由進出</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.optionButton}>
+              <Text style={styles.optionText}>需登記</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.actionButtons}>
+            <TouchableOpacity style={styles.searchButton}>
+              <Text style={styles.searchButtonText}>搜尋</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.clearButton}>
+              <Text style={styles.clearButtonText}>清除選項</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       {/* 定位按鈕 */}
       <TouchableOpacity style={styles.locationButton} onPress={handleLocationPress}>
@@ -183,6 +239,65 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 50,
     height: 50,
+  },
+  advancedSearchContainer: {
+    position: 'absolute',  // 確保懸浮於畫面上
+    bottom: 0,             // 將區塊固定在畫面的底部
+    left: 0,
+    right: 0,
+    backgroundColor: 'white', // 白色背景方便查看
+    padding: 16,
+    borderRadius: 10,
+    borderTopLeftRadius: 10,  // 上角圓角
+    borderTopRightRadius: 10, // 上角圓角
+    shadowColor: '#000',      // 陰影效果，讓它浮於地圖上方
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,            // Android 陰影效果
+    zIndex: 10
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  optionRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  optionButton: {
+    backgroundColor: '#f7f7f7',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  optionText: {
+    color: '#c21807',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  searchButton: {
+    backgroundColor: '#c21807',
+    padding: 12,
+    borderRadius: 5,
+  },
+  searchButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  clearButton: {
+    backgroundColor: '#aaa',
+    padding: 12,
+    borderRadius: 5,
+  },
+  clearButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   }
 });
 
