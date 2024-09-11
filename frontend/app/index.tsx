@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Dimensions, TouchableOpacity, Text } from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
+import MapView, { Marker, Region, PROVIDER_GOOGLE } from 'react-native-maps';
 import { SearchBar, Icon } from 'react-native-elements';
 import * as Location from 'expo-location';
 import nearbyFacilities from '../mock/api/location/getNearby.json';
@@ -60,6 +60,7 @@ const App = () => {
       <MapView
         style={styles.map}
         region={region}
+        provider={PROVIDER_GOOGLE}
         showsUserLocation
         showsMyLocationButton={false}
       >
