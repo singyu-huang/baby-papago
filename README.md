@@ -22,8 +22,8 @@ cd frontend
 npm install
 ```
 #### 建立 `.env` 文件
-請在專案根目錄下建立 `.env` 文件，並且將以下內容填入對應的 API 金鑰：
-```在專案根目錄中建立 `.env` 文件，用來管理 Google Maps 的 API 金鑰。這樣可以確保敏感資訊不會直接存儲在程式碼中，並且便於不同的開發或生產環境中使用不同的 API 金鑰。```
+請在 /frontend 底下建立 `.env` 文件，並且將以下內容填入對應的 API 金鑰：
+```這樣可以確保敏感資訊不會直接存儲在程式碼中，並且便於不同的開發或生產環境中使用不同的 API 金鑰。```
 
 ```bash
 GOOGLE_MAPS_API_KEY_ANDROID=your-android-api-key
