@@ -1,9 +1,32 @@
 services:
-  backend:
-    build: ./backend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./backend:/app
+  database:
+    image: mysql:8.0
+    restart: always
+    container_name: baby_papago_database
     environment:
-      NODE_ENV: development
+      MYSQL_ROOT_PASSWORD: 9487
+      MYSQL_DATABASE: baby_papago
+      TZ: Asia/Taipei
+    ports:
+      - "3310:3306"
+    volumes:
+      - ./deployment/database/mysql-data:/var/lib/mysql # Persist MySQL data (optional)
+      - ./deployment/database/dumps:/docker-entrypoint-initdb.d/ # Mount SQL files into the container
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    image: baby_papago_backend:latest
+    restart: always
+    container_name: baby_papago_backend
+    environment:
+      TZ: Asia/Taipei
+    ports:
+      - "3889:3889"
+    depends_on:
+      - database
+    volumes:
+      - ./deployment/logs/:/app/logs/
+      - ./deployment/backend-config.json:/app/backend-config.json
+
