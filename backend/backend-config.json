@@ -1,0 +1,12 @@
+{
+    "SERVER_PORT": 7009,
+    "LOGGER_LEVEL": "info",
+    "SERVER_APP": "baby_papago_backend",
+    "DB": {
+        "HOST": "baby_papago_database",
+        "PORT": 3306,
+        "USER": "root",
+        "PASSWORD": "9487",
+        "DATABASE": "baby_papago"
+    }
+}

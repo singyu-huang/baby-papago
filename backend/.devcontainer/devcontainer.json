@@ -1,0 +1,15 @@
+{
+    "name": "dev_baby_papago",
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:0-18",
+    "runArgs": [
+        "--name=dev_baby_papago"
+    ],
+    "containerEnv": {
+        "TZ": "Asia/Taipei"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": []
+        }
+    }
+}
