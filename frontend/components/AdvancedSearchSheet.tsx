@@ -206,7 +206,7 @@ const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
 
     const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
       if (!isSubmitting) {
-        bottomSheetRef.current?.snapToIndex(1);
+        bottomSheetRef.current?.snapToIndex(0);
       }
     });
 

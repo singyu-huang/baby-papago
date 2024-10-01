@@ -96,7 +96,7 @@ const App = () => {
 
     setTimeout(() => {
       setIsSubmitting(false);
-    }, 100);
+    }, 300);
 
     // 模擬地點為台北火車站，更新地圖顯示範圍
     setRegion({
@@ -113,8 +113,7 @@ const App = () => {
    * 按下搜尋欄時，開啟進階搜尋的 BottomSheet
    */
   const handleAdvancedSearchBarPress = () => {
-    advancedSearch.sheetRef.current?.expand(); //展開 BottomSheet
-    advancedSearch.isSheetOpen[1](true); //表示 BottomSheet 已開啟
+    advancedSearch.sheetRef.current?.snapToIndex(0);
   };
 
   /**
@@ -123,7 +122,6 @@ const App = () => {
   const handleAdvancedSearchSheetClose = () => {
     advancedSearch.sheetRef.current?.close();
     advancedSearch.searchBarRef.current?.blur(); //取消搜尋欄的 focus
-    advancedSearch.isSheetOpen[1](false); //表示 BottomSheet 已關閉
   };
 
   /**
