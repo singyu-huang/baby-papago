@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import amenitiesData from '../mock/api/amenities/getAllAmenities.json';
 
@@ -30,16 +30,18 @@ const accessMethodLabels = {
  * @property {() => void} handleBottomSheetClose - 關閉 BottomSheet 時呼叫的回調函式
  */
 interface AdvancedSearchSheetProps {
-  snapPoints: string[];
   bottomSheetRef: React.RefObject<BottomSheet>;
   isSheetOpen: boolean;
   handleBottomSheetClose: () => void;
+  setAdvancedFilters: (filters: any) => void;
+  isSubmitting: boolean;
 }
 
 const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
-  snapPoints,
   bottomSheetRef,
   handleBottomSheetClose,
+  setAdvancedFilters,
+  isSubmitting
 }) => {
   // 預設選中 哺乳室、親子廁所、無障礙廁所
   const [selectedSpaceTypes, setSelectedSpaceTypes] = useState<string[]>([
@@ -58,6 +60,7 @@ const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
   const [facilitySearch, setFacilitySearch] = useState('');
   const [filteredAmenities, setFilteredAmenities] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [snapPoints, setSnapPoints] = useState<string[]>(['50%', '80%', '100%']);
 
   const backendSpaceTypes: Array<keyof typeof spaceTypeLabels> = ['nursing_room', 'family_restroom', 'accessible_restroom'];
   const backendSpaceSizes: Array<keyof typeof spaceSizeLabels> = ['spacious', 'medium', 'narrow'];
@@ -163,6 +166,16 @@ const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
       .filter((amenity) => !selectedFacilities.includes(amenity));
   };
 
+  useEffect(() => {
+    const filters = {
+      spaceTypes: selectedSpaceTypes,
+      accessMethods: selectedAccessMethods,
+      spaceSizes: selectedSpaceSizes,
+      facilities: selectedFacilities,
+    };
+    setAdvancedFilters(filters);
+  }, [selectedSpaceTypes, selectedAccessMethods, selectedSpaceSizes, selectedFacilities]);
+
   /**
    * 依照設備搜尋欄輸入的內容，過濾設備列表，並且排除已選擇的設備
    * 當 facilitySearch 或 selectedFacilities 改變時觸發過濾
@@ -180,15 +193,49 @@ const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
     }
   }, [facilitySearch, selectedFacilities]);
 
+  /**
+   * 監聽鍵盤顯示與隱藏事件，並根據鍵盤狀態動態更新 snapPoints
+   */
+  useEffect(() => {
+    bottomSheetRef.current?.close();
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      if (!isSubmitting) {
+        bottomSheetRef.current?.snapToIndex(0);
+      }
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      if (!isSubmitting) {
+        bottomSheetRef.current?.snapToIndex(1);
+      }
+    });
+
+    // 移除事件監聽
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, [isSubmitting]);
+
+/**
+ * resetAllOptions 用於重置所有選項狀態，將使用者選取的空間類型、進入方式、空間大小與設施清空為預設值
+ */  const resetAllOptions = () => {
+    setSelectedSpaceTypes(['nursing_room', 'family_restroom', 'accessible_restroom']);
+    setSelectedAccessMethods(['open_access', 'registration_required', 'staff_assistance']);
+    setSelectedSpaceSizes(['spacious', 'medium', 'narrow']);
+    setSelectedFacilities([]);
+    setErrorMessage('');
+  };
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
       style={styles.bottomSheet}
       index={-1}
       enablePanDownToClose={true}
-      snapPoints={filteredAmenities.length > 5 ? ['100%'] : ['50%', '90%']}
+      snapPoints={snapPoints}
       onClose={handleBottomSheetClose}
-      keyboardBehavior="fillParent"
+      keyboardBehavior="interactive"
       keyboardBlurBehavior="restore"
     >
       <BottomSheetView style={styles.bottomSheetContent}>
@@ -297,22 +344,14 @@ const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
             style={styles.clearButton}
-            onPress={() => {
-              // 清除所有選中的選項
-              setSelectedSpaceTypes([]);
-              setSelectedAccessMethods([]);
-              setSelectedSpaceSizes([]);
-              setSelectedFacilities([]);
-              setErrorMessage(''); // 清除錯誤訊息
-            }}
+            onPress={resetAllOptions}
           >
-            <Text style={styles.buttonText}>清除重選</Text>
+            <Text style={styles.buttonText}>重置</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.confirmButton}
             onPress={() => {
-              // 確定選擇的邏輯
               handleBottomSheetClose();
             }}
           >

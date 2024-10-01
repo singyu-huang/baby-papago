@@ -3,6 +3,7 @@ import { StyleSheet, View, Keyboard } from 'react-native';
 import { Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import nearbyFacilities from '../mock/api/location/getNearby.json';
+import searchNearbyFacilities from '../mock/api/location/getSearchNearby.json';
 import useIcons from '../hooks/useIcons';
 import AdvancedSearchSheet from '../components/AdvancedSearchSheet';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -35,12 +36,19 @@ const App = () => {
   const [region, setRegion] = useState<Region | null>(null);
   const [search, setSearch] = useState('');
   const [facilities, setFacilities] = useState<Facility[]>([]);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 存儲來自 AdvancedSearchSheet 的篩選條件
+  const [advancedFilters, setAdvancedFilters] = useState({
+    spaceTypes: ['nursing_room', 'family_restroom', 'accessible_restroom'],
+    accessMethods: ['open_access', 'registration_required', 'staff_assistance'],
+    spaceSizes: ['spacious', 'medium', 'narrow'],
+    facilities: [],
+  });
 
   const advancedSearch = {
     sheetRef: useRef<BottomSheet>(null),
     searchBarRef: useRef(null),
-    snapPoints: useMemo(() => (keyboardVisible ? ['80%'] : ['50%', '90%']), [keyboardVisible]),
     isSheetOpen: useState(false),
   };
 
@@ -51,39 +59,22 @@ const App = () => {
     // 取得使用者當前位置
     getLocation();
 
-    // 為每個設施生成對應的 Marker Icon Component
-    const processedFacilities = nearbyFacilities.map((facility) => {
-      const IconComponent = useIcons(facility.space_type || 'default');
-
-      return {
-        ...facility,
-        IconComponent,
-      };
-    });
+    const processedFacilities = processFacilitiesWithIcons(nearbyFacilities);
 
     // 儲存處理後的設施資料
     setFacilities(processedFacilities);
   }, []);
 
-  /**
-   * 元件載入時執行，為鍵盤的顯示與隱藏事件加入監聽
-   */
-  useEffect(() => {
-    // 當鍵盤顯示時
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardVisible(true);
+  // 為設施生成對應的 Icon
+  const processFacilitiesWithIcons = (facilities: Facility[]): Facility[] => {
+    return facilities.map((facility) => {
+      const IconComponent = useIcons(facility.space_type || 'default');
+      return {
+        ...facility,
+        IconComponent,
+      };
     });
-    //  當鍵盤隱藏時
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardVisible(false);
-    });
-
-    // 元件移除時，移除鍵盤顯示與隱藏的監聽
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
+  };
 
   /**
    * 按下定位按鈕時，觸發 `getLocation` 來取得使用者當前的位置
@@ -92,6 +83,31 @@ const App = () => {
     getLocation();
   };
 
+
+  const handleSearchSubmit = (location: string, advancedFilters: any) => {
+    setIsSubmitting(true);
+
+    const processedFacilities = processFacilitiesWithIcons(searchNearbyFacilities);
+    setFacilities(processedFacilities);
+
+    if (advancedSearch.sheetRef.current) {
+      advancedSearch.sheetRef.current.close();
+    }
+
+    setTimeout(() => {
+      setIsSubmitting(false);
+    }, 100);
+
+    // 模擬地點為台北火車站，更新地圖顯示範圍
+    setRegion({
+      latitude: 25.0478,
+      longitude: 121.5171,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    });
+
+    setSearch("");
+  };
 
   /**
    * 按下搜尋欄時，開啟進階搜尋的 BottomSheet
@@ -146,6 +162,7 @@ const App = () => {
         value={search}
         onChangeText={setSearch}
         onPress={handleAdvancedSearchBarPress}
+        onSubmitEditing={() => handleSearchSubmit(search, advancedFilters)}
         searchBarRef={advancedSearch.searchBarRef}
       />
 
@@ -154,10 +171,11 @@ const App = () => {
 
       {/* 進階搜尋區塊 */}
       <AdvancedSearchSheet
-        snapPoints={advancedSearch.snapPoints}
         bottomSheetRef={advancedSearch.sheetRef}
         isSheetOpen={advancedSearch.isSheetOpen[0]}
         handleBottomSheetClose={handleAdvancedSearchSheetClose}
+        setAdvancedFilters={setAdvancedFilters}
+        isSubmitting={isSubmitting}
       />
     </View>
   );
