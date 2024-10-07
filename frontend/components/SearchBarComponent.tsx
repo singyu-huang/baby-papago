@@ -6,6 +6,7 @@ interface SearchBarComponentProps {
     value: string;
     onChangeText: (value: string) => void;
     onPress: () => void;
+    onSubmitEditing?: () => void;
     searchBarRef: React.RefObject<any>;
 }
 
@@ -13,6 +14,7 @@ const SearchBarComponent: React.FC<SearchBarComponentProps> = ({
     value,
     onChangeText,
     onPress,
+    onSubmitEditing,
     searchBarRef,
 }) => {
     return (
@@ -25,6 +27,7 @@ const SearchBarComponent: React.FC<SearchBarComponentProps> = ({
             inputContainerStyle={styles.searchBarInputContainer}
             inputStyle={styles.searchBarInput}
             onPress={onPress}
+            onSubmitEditing={onSubmitEditing}
         />
     );
 };

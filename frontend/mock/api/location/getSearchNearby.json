@@ -1,0 +1,173 @@
+[
+    {
+        "facility_id": 5,
+        "facility_name": "臺北市政府大樓",
+        "address": "臺北市信義區市府路1號",
+        "phone_number": "(02)27208889",
+        "extension": "1234",
+        "space_type": "nursing_room",
+        "space_size": "medium",
+        "access_method": "open_access",
+        "gender_friendly": true,
+        "located_in_male_wc": false,
+        "located_in_female_wc": true,
+        "amenities": [
+            {
+                "amenity_name": "靠背椅",
+                "is_available": true
+            },
+            {
+                "amenity_name": "母乳專用冰箱",
+                "is_available": true
+            },
+            {
+                "amenity_name": "尿布台",
+                "is_available": true
+            }
+        ],
+        "latitude": 25.0340,
+        "longitude": 121.5645,
+        "operating_hours": "週一至週五09:00~18:00",
+        "notes": "自行前往哺集乳室，開放時間依現場公告為主"
+    },
+    {
+        "facility_id": 6,
+        "facility_name": "臺北火車站育嬰室",
+        "address": "臺北市中正區忠孝西路1段3號",
+        "phone_number": "(02)23815249",
+        "extension": "2020",
+        "space_type": "nursing_room",
+        "space_size": "large",
+        "access_method": "registration_required",
+        "gender_friendly": true,
+        "located_in_male_wc": false,
+        "located_in_female_wc": true,
+        "amenities": [
+            {
+                "amenity_name": "靠背椅",
+                "is_available": true
+            },
+            {
+                "amenity_name": "飲水服務",
+                "is_available": true
+            },
+            {
+                "amenity_name": "緊急求救設備",
+                "is_available": true
+            },
+            {
+                "amenity_name": "電源設備",
+                "is_available": true
+            }
+        ],
+        "latitude": 25.0478,
+        "longitude": 121.5171,
+        "operating_hours": "全天候開放",
+        "notes": "登記使用，須至服務台登記"
+    },
+    {
+        "facility_id": 7,
+        "facility_name": "國立臺灣博物館",
+        "address": "臺北市中正區襄陽路2號",
+        "phone_number": "(02)23822566",
+        "extension": "4001",
+        "space_type": "family_restroom",
+        "space_size": "small",
+        "access_method": "staff_assistance",
+        "gender_friendly": false,
+        "located_in_male_wc": true,
+        "located_in_female_wc": false,
+        "amenities": [
+            {
+                "amenity_name": "尿布台",
+                "is_available": true
+            },
+            {
+                "amenity_name": "有蓋垃圾桶",
+                "is_available": true
+            },
+            {
+                "amenity_name": "免費衛生用品",
+                "is_available": true
+            }
+        ],
+        "latitude": 25.0420,
+        "longitude": 121.5150,
+        "operating_hours": "週二至週日09:30~17:00",
+        "notes": "請至服務台請求開啟使用"
+    },
+    {
+        "facility_id": 8,
+        "facility_name": "台北101購物中心哺乳室",
+        "address": "臺北市信義區信義路五段7號",
+        "phone_number": "(02)81017777",
+        "extension": "101",
+        "space_type": "nursing_room",
+        "space_size": "large",
+        "access_method": "open_access",
+        "gender_friendly": true,
+        "located_in_male_wc": false,
+        "located_in_female_wc": true,
+        "amenities": [
+            {
+                "amenity_name": "靠背椅",
+                "is_available": true
+            },
+            {
+                "amenity_name": "尿布台",
+                "is_available": true
+            },
+            {
+                "amenity_name": "母乳專用冰箱",
+                "is_available": true
+            },
+            {
+                "amenity_name": "置物空間",
+                "is_available": true
+            },
+            {
+                "amenity_name": "飲水服務",
+                "is_available": true
+            }
+        ],
+        "latitude": 25.0336,
+        "longitude": 121.5645,
+        "operating_hours": "週一至週日10:00~22:00",
+        "notes": "無需登記，自行使用"
+    },
+    {
+        "facility_id": 9,
+        "facility_name": "信義威秀影城哺乳室",
+        "address": "臺北市信義區松壽路20號",
+        "phone_number": "(02)87807778",
+        "extension": "500",
+        "space_type": "nursing_room",
+        "space_size": "medium",
+        "access_method": "open_access",
+        "gender_friendly": true,
+        "located_in_male_wc": false,
+        "located_in_female_wc": true,
+        "amenities": [
+            {
+                "amenity_name": "靠背椅",
+                "is_available": true
+            },
+            {
+                "amenity_name": "緊急求救設備",
+                "is_available": true
+            },
+            {
+                "amenity_name": "飲水服務",
+                "is_available": true
+            },
+            {
+                "amenity_name": "尿布台",
+                "is_available": true
+            }
+        ],
+        "latitude": 25.0348,
+        "longitude": 121.5657,
+        "operating_hours": "週一至週日11:00~23:00",
+        "notes": "哺乳室位於二樓，靠近廁所區域"
+    }
+]

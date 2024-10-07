@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import amenitiesData from '../mock/api/amenities/getAllAmenities.json';
 
@@ -22,7 +22,7 @@ const accessMethodLabels = {
 };
 
 /**
- * AdvancedSearchSheetProps 定義傳遞給 AdvancedSearchSheet Component的屬性
+ * AdvancedSearchSheetProps 定義傳遞給 AdvancedSearchSheet Component 的屬性
  * 
  * @property {string[]} snapPoints - 定義 BottomSheet 的高度斷點
  * @property {React.RefObject<BottomSheet>} bottomSheetRef - 引用 BottomSheet，用於控制開啟和關閉
@@ -30,23 +30,37 @@ const accessMethodLabels = {
  * @property {() => void} handleBottomSheetClose - 關閉 BottomSheet 時呼叫的回調函式
  */
 interface AdvancedSearchSheetProps {
-  snapPoints: string[];
   bottomSheetRef: React.RefObject<BottomSheet>;
   isSheetOpen: boolean;
   handleBottomSheetClose: () => void;
+  setAdvancedFilters: (filters: any) => void;
+  isSubmitting: boolean;
 }
 
 const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
-  snapPoints,
   bottomSheetRef,
   handleBottomSheetClose,
+  setAdvancedFilters,
+  isSubmitting
 }) => {
-  const [selectedSpaceTypes, setSelectedSpaceTypes] = useState<string[]>([]);
-  const [selectedAccessMethods, setSelectedAccessMethods] = useState<string[]>([]);
-  const [facilitySearch, setFacilitySearch] = useState('');
+  // 預設選中 哺乳室、親子廁所、無障礙廁所
+  const [selectedSpaceTypes, setSelectedSpaceTypes] = useState<string[]>([
+    'nursing_room', 'family_restroom', 'accessible_restroom'
+  ]);
+  // 預設選中 自由進出、需登記、需專人開鎖
+  const [selectedAccessMethods, setSelectedAccessMethods] = useState<string[]>([
+    'open_access', 'registration_required', 'staff_assistance'
+  ]);
+  // 預設選中 寬敞、適中、狹窄
+  const [selectedSpaceSizes, setSelectedSpaceSizes] = useState<string[]>([
+    'spacious', 'medium', 'narrow'
+  ]);
+  // 預設不選任何設備
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([]);
+  const [facilitySearch, setFacilitySearch] = useState('');
   const [filteredAmenities, setFilteredAmenities] = useState<string[]>([]);
-  const [selectedSpaceSizes, setSelectedSpaceSizes] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [snapPoints, setSnapPoints] = useState<string[]>(['50%', '80%', '100%']);
 
   const backendSpaceTypes: Array<keyof typeof spaceTypeLabels> = ['nursing_room', 'family_restroom', 'accessible_restroom'];
   const backendSpaceSizes: Array<keyof typeof spaceSizeLabels> = ['spacious', 'medium', 'narrow'];
@@ -104,7 +118,16 @@ const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
    * @param {string} tag - 要移除的設備標籤
    */
   const removeFacilityTag = (tag: string) => {
-    setSelectedFacilities((prev) => prev.filter((f) => f !== tag));
+    setSelectedFacilities((prev) => {
+      const updatedFacilities = prev.filter((f) => f !== tag);
+
+      // 當選中的設備少於 10 個時，清除錯誤訊息
+      if (updatedFacilities.length < 10) {
+        setErrorMessage('');
+      }
+
+      return updatedFacilities;
+    });
   };
 
   /**
@@ -112,12 +135,46 @@ const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
    * @param {string} amenity - 要加入的設備名稱
    */
   const addAmenityTag = (amenity: string) => {
+    if (selectedFacilities.length >= 10) {
+      // 設定錯誤訊息
+      setErrorMessage('最多只能選擇 10 個設備');
+      return;
+    }
+
+    setErrorMessage(''); // 如果新增成功則清除錯誤訊息
     if (!selectedFacilities.includes(amenity)) {
       setSelectedFacilities((prev) => [...prev, amenity]);
     }
     setFacilitySearch('');
     setFilteredAmenities([]);
   };
+
+  /**
+   * getFilteredAmenities 函數用於返回過濾後的設備列表
+   * 
+   * 根據當前的搜尋狀態決定要顯示的設備：
+   * - 如果 `filteredAmenities` 為空，則返回所有可用的設備（`amenitiesData.data`）
+   * - 如果 `filteredAmenities` 不為空，則返回符合搜尋條件的設備
+   * 
+   * 同時，過濾掉已選中的設備（`selectedFacilities`）
+   * 以防止重複顯示已選中的設備標籤
+   * 
+   * @returns {string[]} - 經過過濾後的設備列表。
+   */
+  const getFilteredAmenities = () => {
+    return (filteredAmenities.length === 0 ? amenitiesData.data : filteredAmenities)
+      .filter((amenity) => !selectedFacilities.includes(amenity));
+  };
+
+  useEffect(() => {
+    const filters = {
+      spaceTypes: selectedSpaceTypes,
+      accessMethods: selectedAccessMethods,
+      spaceSizes: selectedSpaceSizes,
+      facilities: selectedFacilities,
+    };
+    setAdvancedFilters(filters);
+  }, [selectedSpaceTypes, selectedAccessMethods, selectedSpaceSizes, selectedFacilities]);
 
   /**
    * 依照設備搜尋欄輸入的內容，過濾設備列表，並且排除已選擇的設備
@@ -136,14 +193,49 @@ const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
     }
   }, [facilitySearch, selectedFacilities]);
 
+  /**
+   * 監聽鍵盤顯示與隱藏事件，並根據鍵盤狀態動態更新 snapPoints
+   */
+  useEffect(() => {
+    bottomSheetRef.current?.close();
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      if (!isSubmitting) {
+        bottomSheetRef.current?.snapToIndex(0);
+      }
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      if (!isSubmitting) {
+        bottomSheetRef.current?.snapToIndex(0);
+      }
+    });
+
+    // 移除事件監聽
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, [isSubmitting]);
+
+/**
+ * resetAllOptions 用於重置所有選項狀態，將使用者選取的空間類型、進入方式、空間大小與設施清空為預設值
+ */  const resetAllOptions = () => {
+    setSelectedSpaceTypes(['nursing_room', 'family_restroom', 'accessible_restroom']);
+    setSelectedAccessMethods(['open_access', 'registration_required', 'staff_assistance']);
+    setSelectedSpaceSizes(['spacious', 'medium', 'narrow']);
+    setSelectedFacilities([]);
+    setErrorMessage('');
+  };
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
+      style={styles.bottomSheet}
       index={-1}
       enablePanDownToClose={true}
-      snapPoints={filteredAmenities.length > 5 ? ['100%'] : ['50%', '90%']}
+      snapPoints={snapPoints}
       onClose={handleBottomSheetClose}
-      keyboardBehavior="fillParent"
+      keyboardBehavior="interactive"
       keyboardBlurBehavior="restore"
     >
       <BottomSheetView style={styles.bottomSheetContent}>
@@ -159,7 +251,10 @@ const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
               ]}
               onPress={() => toggleSpaceType(type)}
             >
-              <Text style={styles.optionButtonText}>{spaceTypeLabels[type]}</Text>
+              <Text style={[
+                styles.optionButtonText,
+                selectedSpaceTypes.includes(type) && styles.optionButtonSelectedText,
+              ]}>{spaceTypeLabels[type]}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -176,7 +271,10 @@ const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
               ]}
               onPress={() => toggleAccessMethod(method)}
             >
-              <Text style={styles.optionButtonText}>{accessMethodLabels[method]}</Text>
+              <Text style={[
+                styles.optionButtonText,
+                selectedAccessMethods.includes(method) && styles.optionButtonSelectedText,
+              ]}>{accessMethodLabels[method]}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -193,7 +291,10 @@ const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
               ]}
               onPress={() => toggleSpaceSize(size)}
             >
-              <Text style={styles.optionButtonText}>{spaceSizeLabels[size]}</Text>
+              <Text style={[
+                styles.optionButtonText,
+                selectedSpaceSizes.includes(size) && styles.optionButtonSelectedText,
+              ]}>{spaceSizeLabels[size]}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -219,21 +320,43 @@ const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
             />
           </View>
 
-          {filteredAmenities.length > 0 && (
-            <FlatList
-              style={styles.suggestionsList}
-              data={filteredAmenities}
-              renderItem={({ item }) => (
+          {/* 錯誤訊息 */}
+          {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+
+
+          {/* 顯示推薦的標籤 */}
+          <View style={styles.recommendedTagsContainer}>
+            {getFilteredAmenities()
+              .slice(0, 10)
+              .map((amenity) => (
                 <TouchableOpacity
-                  style={styles.amenityItem}
-                  onPress={() => addAmenityTag(item)}
+                  key={amenity}
+                  style={styles.recommendedTag}
+                  onPress={() => addAmenityTag(amenity)}
                 >
-                  <Text>{String(item)}</Text>
+                  <Text>{amenity}</Text>
                 </TouchableOpacity>
-              )}
-              keyExtractor={(item) => String(item)}
-            />
-          )}
+              ))}
+          </View>
+        </View>
+
+        {/* 清除重選和確定按鈕 */}
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity
+            style={styles.clearButton}
+            onPress={resetAllOptions}
+          >
+            <Text style={styles.buttonText}>重置</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.confirmButton}
+            onPress={() => {
+              handleBottomSheetClose();
+            }}
+          >
+            <Text style={styles.buttonText}>確定</Text>
+          </TouchableOpacity>
         </View>
       </BottomSheetView>
     </BottomSheet>
@@ -241,9 +364,25 @@ const AdvancedSearchSheet: React.FC<AdvancedSearchSheetProps> = ({
 };
 
 const styles = StyleSheet.create({
+  bottomSheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    // iOS 陰影效果
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    // Android 陰影效果
+    elevation: 15,
+  },
   bottomSheetContent: {
     flex: 1,
     paddingHorizontal: 20,
+    backgroundColor: '#fff',
   },
   sectionTitle: {
     fontSize: 14,
@@ -261,10 +400,13 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   optionButtonSelected: {
-    backgroundColor: '#d32f2f',
+    backgroundColor: '#e685b5',
   },
   optionButtonText: {
-    color: '#000',
+    color: '#000000',
+  },
+  optionButtonSelectedText: {
+    color: '#ffffff',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -279,18 +421,22 @@ const styles = StyleSheet.create({
   tagInInput: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#e685b5',
     padding: 10,
     margin: 3,
     borderRadius: 10,
   },
   tagTextInInput: {
+    color: '#ffffff',
     marginRight: 5,
     fontSize: 14,
   },
   removeTagButtonInInput: {
-    color: '#d32f2f',
+    color: '#ffffff',
     fontWeight: 'bold',
+    paddingHorizontal: 5,
+    minWidth: 15,
+    textAlign: 'center',
   },
   textInput: {
     flex: 1,
@@ -309,6 +455,49 @@ const styles = StyleSheet.create({
     padding: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+  },
+  recommendedTagsContainer: {
+    marginVertical: 10,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
+  recommendedTag: {
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+    borderRadius: 10,
+    margin: 5,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    paddingBottom: 20,
+  },
+  clearButton: {
+    flex: 1,
+    backgroundColor: '#565e64',
+    padding: 15,
+    marginRight: 10,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  confirmButton: {
+    flex: 1,
+    backgroundColor: '#e685b5',
+    padding: 15,
+    marginLeft: 10,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
